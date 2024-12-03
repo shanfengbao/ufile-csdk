@@ -86,6 +86,32 @@ ufile_free_file_info(struct ufile_file_info info){
     }
 }
 
+void 
+ufile_free_list_result(struct ufile_list_result list_result) {
+    int i;
+    for (i = 0; i < list_result.entry_num; i++) {
+        struct ufile_list_result_entry *entry = &(list_result.entries[i]);
+        if (entry->filename != NULL) {
+            free((void*)(entry->filename));
+        }
+        if (entry->mime_type != NULL) {
+            free((void*)(entry->mime_type));
+        }
+        if (entry->filename != NULL) {
+            free((void*)(entry->etag));
+        }
+        if (entry->storage_class != NULL) {
+            free((void*)(entry->storage_class));
+        }
+    }
+    if(list_result.next_marker != NULL){
+        free((void*)list_result.next_marker);
+    }
+    if (list_result.entries != NULL){
+        free((void*)list_result.entries);
+    }
+}
+
 struct ufile_error
 ufile_load_config_from_json(const char* json_buf, struct ufile_config *cfg){
     struct ufile_error error = NO_ERROR;

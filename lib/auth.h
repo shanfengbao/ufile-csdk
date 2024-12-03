@@ -14,6 +14,13 @@ char * ufile_file_authorization(const char *public_key, const char *private_key,
                                 const char *key, const char *mime_type,
                                 const char *date, const char *md5);
 
+char * ufile_file_authorization_for_list(const char *public_key, const char *private_key,
+                                const char *method, const char *bucket, 
+                                const char *key, const char *mime_type,
+                                const char *date, const char *md5, const char *prefix,
+                                const char *marker,
+                                const char *count,
+                                const char *delimiter);
 
 //文件下载签名，mime_type, date, md5 可以为空。
 //如果你加入了 date 请在 http 的 header 里面加入 Date: md5 头

@@ -23,11 +23,15 @@ struct ufile_error{
 #define UFILE_MULTIPLE_NOT_FINISH_ERROR_CODE -5
 #define UFILE_BUCKET_REQ_ERROR_CODE -10
 #define CURL_ERROR_CODE -20
+#define NO_MEMORY_ERROR_CODE -30
+#define UFILE_PARSE_JSON_ERROR_CODE -40
 
 #define NO_ERROR {0, ""} 
 #define CURL_INIT_ERROR_MSG "init curl failed."
 
 #define UFILE_HAS_ERROR(CODE) ((CODE) != 0 && (CODE)/100 != 2 )
+
+#define UFILE_LIST_MAX_COUNT (1000)
 //****************************************************************** end
 
 //*********************************config
@@ -154,6 +158,32 @@ ufile_bucket_create(const char *bucket_name, const char* region, const char* buc
 //bucket_name 为 bucket 名字
 extern struct ufile_error
 ufile_bucket_delete(const char *bucket_name);
+
+struct ufile_list_result_entry {
+  char *filename;      // 文件名称
+  char *mime_type;     // 文件mimetype
+  char *etag;          // 标识文件内容
+  long long size;             // 文件大小
+  char *storage_class; // 文件存储类型
+  long long last_modified;    //文件最后修改时间
+  long long create_time;      // 文件创建时间
+};
+
+struct ufile_list_result {
+  struct ufile_list_result_entry *entries;
+  int entry_num;
+  char is_truncated;
+  char *next_marker;
+};
+
+//拉取指定前缀的对象列表
+extern struct ufile_error
+ufile_list(const char *bucket_name, const char *prefix, const char *delimiter, int count, const char *marker, struct ufile_list_result *result);
+
+//清理list结果
+extern void 
+ufile_free_list_result(struct ufile_list_result list_result);
+
 #ifdef __cplusplus
 }
 #endif

@@ -27,6 +27,17 @@ set_http_options(struct http_options *opt,
                  const char *query);
 
 struct ufile_error
+set_http_options_for_list(struct http_options *opt, 
+                 const char *method,
+                 const char *mime_type,
+                 const char *bucket,
+                 const char *key,
+                 const char *prefix,
+                 const char *marker,
+                 int count,
+                 const char *delimiter);
+
+struct ufile_error
 set_download_options(
     CURL *curl,
     const char* bucket,

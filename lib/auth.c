@@ -28,6 +28,35 @@ char * ufile_file_authorization(const char *public_key, const char *private_key,
     return ufile_strconcat("UCloud ", public_key, ":", signature, NULL);
 }
 
+char * ufile_file_authorization_for_list(const char *public_key, const char *private_key,
+                                const char *method, const char *bucket, 
+                                const char *key, const char *mime_type,
+                                const char *date, const char *md5, const char *prefix,
+                                const char *marker,
+                                const char *count,
+                                const char *delimiter) {
+    char *sig_data = ufile_strconcat(method,"\n",
+                                     md5, "\n",
+                                     mime_type, "\n",
+                                     date, "\n",
+                                     "/",bucket, "/", key,
+                                     "\nlistobjects",
+                                     "\ndelimiter:", delimiter,
+                                     "\nmarker:", marker,
+                                     "\nmax-keys:", count,
+                                     "\nprefix:", prefix,
+                                     NULL);
+    unsigned char HMAC_str[HMAC_LEN];
+    HMAC_SHA1(HMAC_str, (unsigned char*)private_key, strlen(private_key),
+              (unsigned char*)sig_data, strlen(sig_data));
+
+    char signature[20];
+    base64encode(signature, (const char*)HMAC_str, 20);
+
+    free(sig_data);
+    return ufile_strconcat("UCloud ", public_key, ":", signature, NULL);
+}
+
 char * ufile_download_authorization(
     const char* private_key,
     const char* bucket,

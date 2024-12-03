@@ -36,12 +36,6 @@ set_http_options(struct http_options *opt,
         return error;
     }
 
-    if(strlen(key) == 0){
-        error.code = UFILE_CONFIG_ERROR_CODE;
-        error.message = "key connot be empty";
-        return error;
-    }
-
     opt->header = NULL;
     char *buf;
     if (strlen(mime_type) != 0){
@@ -64,6 +58,56 @@ set_http_options(struct http_options *opt,
         opt->url = ufile_strconcat(bucket, ".", cfg->file_host, "/", key, NULL);
     }
 
+    return error;
+}
+
+struct ufile_error
+set_http_options_for_list(struct http_options *opt, 
+                 const char *method,
+                 const char *mime_type,
+                 const char *bucket,
+                 const char *key,
+                 const char *prefix,
+                 const char *marker,
+                 int count,
+                 const char *delimiter) {
+    struct ufile_error error = NO_ERROR;
+    struct ufile_config *cfg = _global_config;
+
+    if (cfg == NULL){
+        error.code = UFILE_CONFIG_ERROR_CODE;
+        error.message = "global configuration has not been initialization yet.";
+        return error;
+    }
+
+    if(strlen(bucket) == 0){
+        error.code = UFILE_CONFIG_ERROR_CODE;
+        error.message = "bucket connot be empty";
+        return error;
+    }
+
+    char count_str[20];
+    snprintf(count_str, sizeof(count_str), "%d", count);
+
+    opt->header = NULL;
+    char *buf;
+    if (strlen(mime_type) != 0){
+        buf = ufile_strconcat("Content-Type: ", mime_type, NULL);
+        opt->header = curl_slist_append(opt->header, buf);
+        free(buf);
+    }
+    opt->header = curl_slist_append(opt->header, "User-Agent: UFile CSDK/2.0.0");
+
+    char *auth = ufile_file_authorization_for_list(cfg->public_key,cfg->private_key,method, bucket,
+                                                   key, mime_type, "", "", prefix, marker, count_str, delimiter);
+    buf = ufile_strconcat("Authorization: ", auth, NULL); 
+    opt->header = curl_slist_append(opt->header, buf);
+    free(auth); 
+    free(buf);
+
+    opt->method = ufile_strconcat(method, NULL);
+    opt->url = ufile_strconcat(bucket, ".", cfg->file_host, "/", key, "?listobjects&delimiter=", delimiter,
+                               "&marker=", marker, "&max-keys=", count_str, "&prefix=", prefix, NULL);
     return error;
 }
 
