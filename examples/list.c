@@ -54,9 +54,9 @@ int main(int argc, char *argv[]){
       marker = result.next_marker;
       is_truncated = result.is_truncated;
     }
-  }
 
-  ufile_free_list_result(result);
+    ufile_free_list_result(result);
+  }
 
   ufile_sdk_cleanup();
 }
