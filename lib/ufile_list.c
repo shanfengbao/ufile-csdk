@@ -44,6 +44,13 @@ ufile_parse_list_response(char *body, struct ufile_list_result *result) {
   int entry_num = num_contents + num_common_prefixes;
   if (entry_num > 0) {
     out_result.entries = (struct ufile_list_result_entry *)malloc(entry_num * sizeof(struct ufile_list_result_entry));
+    if (out_result.entries == NULL) {
+      cJSON_Delete(root);
+      error.code = NO_MEMORY_ERROR_CODE;
+      error.message = "no memory.";
+      return error;
+    }
+    memset(out_result.entries, 0, entry_num * sizeof(struct ufile_list_result_entry));
   }
   out_result.entry_num = entry_num;
 
